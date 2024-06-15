@@ -50,17 +50,29 @@ async function run(): Promise<void> {
 
     const files = gitOutput.split('\n');
     const newContents = [];
+
+    const g = octokit.rest.git;
+
     for (const path of files) {
       if (!path.trim()) {
         continue;
       }
       if (fs.existsSync(path)) {
-        const fileContent = fs.readFileSync(path);
+        // const {
+        //   data: {sha},
+        // } = g.createBlob({
+        //   owner,
+        //   repo,
+        //   content: fs.readFileSync(path, {encoding: 'base64'}),
+        //   encoding: 'base64',
+        // });
+
         newContents.push({
           path,
           mode: '100644' as const,
           type: 'blob' as const,
-          content: Buffer.from(fileContent).toString(),
+          // content: sha,
+          content: fs.readFileSync(path, {encoding: 'base64'}),
         });
       } else {
         core.debug(`File removed: ${path}`);
@@ -69,7 +81,7 @@ async function run(): Promise<void> {
           mode: '100644' as const,
           type: 'blob' as const,
           sha: null,
-        })
+        });
       }
     }
 
@@ -78,7 +90,7 @@ async function run(): Promise<void> {
     // Docs at docs.github.com/en/rest/git/trees but tbh I just asked ChatGPT
     // and then made it as terse as I could. :shrug:
 
-    const g = octokit.rest.git;
+    // const g = octokit.rest.git;
     const ref = `heads/${branchName}`; // slight discrepancy w/ updateRef docs here
 
     core.debug(`fetching ref ${JSON.stringify({owner, repo, ref})}`);
