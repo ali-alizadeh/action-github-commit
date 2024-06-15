@@ -91,20 +91,17 @@ function run() {
                     continue;
                 }
                 if (fs_1.default.existsSync(path)) {
-                    // const {
-                    //   data: {sha},
-                    // } = g.createBlob({
-                    //   owner,
-                    //   repo,
-                    //   content: fs.readFileSync(path, {encoding: 'base64'}),
-                    //   encoding: 'base64',
-                    // });
+                    const { data: { sha }, } = yield g.createBlob({
+                        owner,
+                        repo,
+                        content: fs_1.default.readFileSync(path, { encoding: 'base64' }),
+                        encoding: 'base64',
+                    });
                     newContents.push({
                         path,
                         mode: '100644',
                         type: 'blob',
-                        // content: sha,
-                        content: fs_1.default.readFileSync(path, { encoding: 'base64' }),
+                        content: sha,
                     });
                 }
                 else {

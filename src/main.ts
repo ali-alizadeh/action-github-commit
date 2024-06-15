@@ -58,21 +58,20 @@ async function run(): Promise<void> {
         continue;
       }
       if (fs.existsSync(path)) {
-        // const {
-        //   data: {sha},
-        // } = g.createBlob({
-        //   owner,
-        //   repo,
-        //   content: fs.readFileSync(path, {encoding: 'base64'}),
-        //   encoding: 'base64',
-        // });
+        const {
+          data: {sha},
+        } = await g.createBlob({
+          owner,
+          repo,
+          content: fs.readFileSync(path, {encoding: 'base64'}),
+          encoding: 'base64',
+        });
 
         newContents.push({
           path,
           mode: '100644' as const,
           type: 'blob' as const,
-          // content: sha,
-          content: fs.readFileSync(path, {encoding: 'base64'}),
+          content: sha,
         });
       } else {
         core.debug(`File removed: ${path}`);
