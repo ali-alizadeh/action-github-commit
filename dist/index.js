@@ -101,7 +101,7 @@ function run() {
                         path,
                         mode: '100644',
                         type: 'blob',
-                        content: sha,
+                        sha,
                     });
                 }
                 else {
