@@ -102,6 +102,8 @@ async function run(): Promise<void> {
       `
     );
 
+    core.debug(`expectedHeadOid: ${expectedHeadOid}`);
+
     const result = await graphql(
       `
         mutation createCommitOnBranch() {
@@ -124,6 +126,8 @@ async function run(): Promise<void> {
         },
       }
     );
+
+    core.debug(`result: ${result}`);
   } catch (error: unknown) {
     if (error instanceof Error) {
       core.error(error.stack || '');

@@ -131,6 +131,7 @@ function run() {
           }
         }
       `);
+            core.debug(`expectedHeadOid: ${expectedHeadOid}`);
             const result = yield (0, graphql_1.graphql)(`
         mutation createCommitOnBranch() {
           clientMutationId: 'id',
@@ -150,6 +151,7 @@ function run() {
                     authorization: `token ${token}`,
                 },
             });
+            core.debug(`result: ${result}`);
         }
         catch (error) {
             if (error instanceof Error) {
