@@ -117,7 +117,7 @@ function run() {
                 }
             }
             core.debug('getting expectedHeadOid...');
-            const expectedHeadOid = yield (0, graphql_1.graphql)(`
+            const expectedHeadOidRes = yield (0, graphql_1.graphql)(`
         {
           repository(name: "${repo}", owner: "${owner}") {
             ref(qualifiedName: "${branchName}") {
@@ -132,26 +132,16 @@ function run() {
               }
             }
           }
-          # repository(name: ${repo}, owner: ${owner}) {
-          #   defaultBranchRef {
-          #     target {
-          #       ... on Commit {
-          #         history(first: 1) {
-          #           nodes {
-          #             oid
-          #           }
-          #         }
-          #       }
-          #     }
-          #   }
-          # }
         }
       `, {
                 headers: {
                     authorization: `token ${token}`,
                 },
             });
-            core.debug(`expectedHeadOid: ${JSON.stringify(expectedHeadOid)}`);
+            core.debug(`expectedHeadOidRes: ${JSON.stringify(expectedHeadOidRes)}`);
+            const expectedHeadOid = expectedHeadOidRes.repository.ref.target
+                .history.nodes[0].oid;
+            core.debug(`expectedHeadOid: ${expectedHeadOid}`);
             core.debug('Creating commit...');
             const result = yield (0, graphql_1.graphql)(`
         mutation createCommitOnBranch() {

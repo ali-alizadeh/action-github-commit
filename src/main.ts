@@ -86,7 +86,7 @@ async function run(): Promise<void> {
 
     core.debug('getting expectedHeadOid...');
 
-    const expectedHeadOid = await graphql(
+    const expectedHeadOidRes = await graphql(
       `
         {
           repository(name: "${repo}", owner: "${owner}") {
@@ -102,19 +102,6 @@ async function run(): Promise<void> {
               }
             }
           }
-          # repository(name: ${repo}, owner: ${owner}) {
-          #   defaultBranchRef {
-          #     target {
-          #       ... on Commit {
-          #         history(first: 1) {
-          #           nodes {
-          #             oid
-          #           }
-          #         }
-          #       }
-          #     }
-          #   }
-          # }
         }
       `,
       {
@@ -124,7 +111,12 @@ async function run(): Promise<void> {
       }
     );
 
-    core.debug(`expectedHeadOid: ${JSON.stringify(expectedHeadOid)}`);
+    core.debug(`expectedHeadOidRes: ${JSON.stringify(expectedHeadOidRes)}`);
+
+    const expectedHeadOid = (expectedHeadOidRes as any).repository.ref.target
+      .history.nodes[0].oid;
+
+    core.debug(`expectedHeadOid: ${expectedHeadOid}`);
 
     core.debug('Creating commit...');
 
