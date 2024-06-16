@@ -124,7 +124,7 @@ async function run(): Promise<void> {
       }
     );
 
-    core.debug(`expectedHeadOid: ${expectedHeadOid}`);
+    core.debug(`expectedHeadOid: ${JSON.stringify(expectedHeadOid)}`);
 
     core.debug('Creating commit...');
 
