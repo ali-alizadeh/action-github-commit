@@ -88,13 +88,15 @@ async function run(): Promise<void> {
 
     const expectedHeadOid = await graphql(
       `
-        repository(name: ${repo}, owner: ${owner}) {
-          defaultBranchRef {
-            target {
-              ... on Commit {
-                history(first: 1) {
-                  nodes {
-                    oid
+        {
+          repository(name: ${repo}, owner: ${owner}) {
+            defaultBranchRef {
+              target {
+                ... on Commit {
+                  history(first: 1) {
+                    nodes {
+                      oid
+                    }
                   }
                 }
               }
