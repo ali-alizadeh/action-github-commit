@@ -158,7 +158,9 @@ function run() {
                         repositoryNameWithOwner: owner + '/' + repo,
                         branchName: branchName,
                     },
-                    message: message,
+                    message: {
+                        headline: message,
+                    },
                     fileChanges: {
                         additions: additions,
                         deletions: deletions,
