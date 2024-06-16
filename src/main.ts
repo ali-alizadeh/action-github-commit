@@ -90,10 +90,10 @@ async function run(): Promise<void> {
       `
         {
           repository(name: ${repo}, owner: ${owner}) {
-            defaultBranchRef {
+            ref(qualifiedName: ${branchName}) {
               target {
                 ... on Commit {
-                  history(first: 1) {
+                  history(first:1) {
                     nodes {
                       oid
                     }
@@ -102,6 +102,19 @@ async function run(): Promise<void> {
               }
             }
           }
+          # repository(name: ${repo}, owner: ${owner}) {
+          #   defaultBranchRef {
+          #     target {
+          #       ... on Commit {
+          #         history(first: 1) {
+          #           nodes {
+          #             oid
+          #           }
+          #         }
+          #       }
+          #     }
+          #   }
+          # }
         }
       `,
       {

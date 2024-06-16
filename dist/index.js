@@ -120,10 +120,10 @@ function run() {
             const expectedHeadOid = yield (0, graphql_1.graphql)(`
         {
           repository(name: ${repo}, owner: ${owner}) {
-            defaultBranchRef {
+            ref(qualifiedName: ${branchName}) {
               target {
                 ... on Commit {
-                  history(first: 1) {
+                  history(first:1) {
                     nodes {
                       oid
                     }
@@ -132,6 +132,19 @@ function run() {
               }
             }
           }
+          # repository(name: ${repo}, owner: ${owner}) {
+          #   defaultBranchRef {
+          #     target {
+          #       ... on Commit {
+          #         history(first: 1) {
+          #           nodes {
+          #             oid
+          #           }
+          #         }
+          #       }
+          #     }
+          #   }
+          # }
         }
       `, {
                 headers: {
