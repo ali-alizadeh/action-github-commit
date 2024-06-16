@@ -101,7 +101,12 @@ async function run(): Promise<void> {
             }
           }
         }
-      `
+      `,
+      {
+        headers: {
+          authorization: `token ${token}`,
+        },
+      }
     );
 
     core.debug(`expectedHeadOid: ${expectedHeadOid}`);

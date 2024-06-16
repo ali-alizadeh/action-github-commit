@@ -131,7 +131,11 @@ function run() {
             }
           }
         }
-      `);
+      `, {
+                headers: {
+                    authorization: `token ${token}`,
+                },
+            });
             core.debug(`expectedHeadOid: ${expectedHeadOid}`);
             core.debug('Creating commit...');
             const result = yield (0, graphql_1.graphql)(`
