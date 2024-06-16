@@ -120,7 +120,7 @@ function run() {
             const expectedHeadOid = yield (0, graphql_1.graphql)(`
         {
           repository(name: "${repo}", owner: "${owner}") {
-            ref(qualifiedName: ${branchName}) {
+            ref(qualifiedName: "${branchName}") {
               target {
                 ... on Commit {
                   history(first:1) {
@@ -157,15 +157,15 @@ function run() {
         mutation createCommitOnBranch() {
           clientMutationId: 'id',
           branch: {
-			      repositoryNameWithOwner: ${owner + '/' + repo},
-			      branchName: ${branchName},
+			      repositoryNameWithOwner: "${owner + '/' + repo}",
+			      branchName: "${branchName}",
 		      },
-          message: ${message},
+          message: "${message}",
           fileChanges: {
             additions: ${additions},
             deletions: ${deletions},
           },
-          expectedHeadOid: ${expectedHeadOid},
+          expectedHeadOid: "${expectedHeadOid}",
         }
       `, {
                 headers: {

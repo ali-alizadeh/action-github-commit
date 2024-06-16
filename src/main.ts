@@ -90,7 +90,7 @@ async function run(): Promise<void> {
       `
         {
           repository(name: "${repo}", owner: "${owner}") {
-            ref(qualifiedName: ${branchName}) {
+            ref(qualifiedName: "${branchName}") {
               target {
                 ... on Commit {
                   history(first:1) {
@@ -133,15 +133,15 @@ async function run(): Promise<void> {
         mutation createCommitOnBranch() {
           clientMutationId: 'id',
           branch: {
-			      repositoryNameWithOwner: ${owner + '/' + repo},
-			      branchName: ${branchName},
+			      repositoryNameWithOwner: "${owner + '/' + repo}",
+			      branchName: "${branchName}",
 		      },
-          message: ${message},
+          message: "${message}",
           fileChanges: {
             additions: ${additions},
             deletions: ${deletions},
           },
-          expectedHeadOid: ${expectedHeadOid},
+          expectedHeadOid: "${expectedHeadOid}",
         }
       `,
       {
