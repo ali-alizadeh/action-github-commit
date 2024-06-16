@@ -122,13 +122,13 @@ async function run(): Promise<void> {
 
     const result = await graphql(
       `
-        mutation ($input: ) {
+        mutation ($input: CreateCommitOnBranchInput!) {
           createCommitOnBranch(input: $input) {
             commit {
               url
             }
           }
-        } 
+        }
       `,
       {
         input: {
