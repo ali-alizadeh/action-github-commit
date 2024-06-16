@@ -37,24 +37,24 @@ async function run(): Promise<void> {
       },
     });
 
-    let expectedHeadOid = '';
-    await exec('git', ['rev-parse', 'HEAD~'], {
-      silent: true,
-      listeners: {
-        stdout: (data: Buffer) => {
-          expectedHeadOid += data.toString();
-        },
-        stderr: (data: Buffer) => {
-          gitError += data.toString();
-        },
-      },
-    });
+    // let expectedHeadOid = '';
+    // await exec('git', ['rev-parse', 'HEAD~'], {
+    //   silent: true,
+    //   listeners: {
+    //     stdout: (data: Buffer) => {
+    //       expectedHeadOid += data.toString();
+    //     },
+    //     stderr: (data: Buffer) => {
+    //       gitError += data.toString();
+    //     },
+    //   },
+    // });
 
     core.debug('🐭🐭🐭🐭🐭 gitOutput vvv');
     core.debug(gitOutput);
     core.debug('🐱🐱🐱🐱🐱 ^^^ gitOutput');
 
-    if (!gitOutput && !expectedHeadOid) {
+    if (!gitOutput) {
       return; // This action is a no-op if there are no changes.
     }
     if (gitError) {
@@ -83,6 +83,24 @@ async function run(): Promise<void> {
         });
       }
     }
+
+    const expectedHeadOid = await graphql(
+      `
+        query repository(name: ${repo}, owner: ${owner}) {
+          defaultBranchRef {
+            target {
+              ... on Commit {
+                history(first: 1) {
+                  nodes {
+                    oid
+                  }
+                }
+              }
+            }
+          }
+        }
+      `
+    );
 
     const result = await graphql(
       `

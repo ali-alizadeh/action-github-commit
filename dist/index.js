@@ -74,22 +74,22 @@ function run() {
                     },
                 },
             });
-            let expectedHeadOid = '';
-            yield (0, exec_1.exec)('git', ['rev-parse', 'HEAD~'], {
-                silent: true,
-                listeners: {
-                    stdout: (data) => {
-                        expectedHeadOid += data.toString();
-                    },
-                    stderr: (data) => {
-                        gitError += data.toString();
-                    },
-                },
-            });
+            // let expectedHeadOid = '';
+            // await exec('git', ['rev-parse', 'HEAD~'], {
+            //   silent: true,
+            //   listeners: {
+            //     stdout: (data: Buffer) => {
+            //       expectedHeadOid += data.toString();
+            //     },
+            //     stderr: (data: Buffer) => {
+            //       gitError += data.toString();
+            //     },
+            //   },
+            // });
             core.debug('🐭🐭🐭🐭🐭 gitOutput vvv');
             core.debug(gitOutput);
             core.debug('🐱🐱🐱🐱🐱 ^^^ gitOutput');
-            if (!gitOutput && !expectedHeadOid) {
+            if (!gitOutput) {
                 return; // This action is a no-op if there are no changes.
             }
             if (gitError) {
@@ -116,6 +116,21 @@ function run() {
                     });
                 }
             }
+            const expectedHeadOid = yield (0, graphql_1.graphql)(`
+        query repository(name: ${repo}, owner: ${owner}) {
+          defaultBranchRef {
+            target {
+              ... on Commit {
+                history(first: 1) {
+                  nodes {
+                    oid
+                  }
+                }
+              }
+            }
+          }
+        }
+      `);
             const result = yield (0, graphql_1.graphql)(`
         mutation createCommitOnBranch() {
           clientMutationId: 'id',
