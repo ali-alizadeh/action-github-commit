@@ -88,7 +88,7 @@ async function run(): Promise<void> {
 
     const expectedHeadOid = await graphql(
       `
-        query repository(name: ${repo}, owner: ${owner}) {
+        repository(name: ${repo}, owner: ${owner}) {
           defaultBranchRef {
             target {
               ... on Commit {
