@@ -3,6 +3,7 @@ import fs from 'fs';
 import * as core from '@actions/core';
 import {exec} from '@actions/exec';
 import * as github from '@actions/github';
+import {graphql} from '@octokit/graphql';
 
 async function run(): Promise<void> {
   try {
@@ -36,11 +37,24 @@ async function run(): Promise<void> {
       },
     });
 
+    let expectedHeadOid = '';
+    await exec('git', ['rev-parse', 'HEAD~'], {
+      silent: true,
+      listeners: {
+        stdout: (data: Buffer) => {
+          expectedHeadOid += data.toString();
+        },
+        stderr: (data: Buffer) => {
+          gitError += data.toString();
+        },
+      },
+    });
+
     core.debug('🐭🐭🐭🐭🐭 gitOutput vvv');
     core.debug(gitOutput);
     core.debug('🐱🐱🐱🐱🐱 ^^^ gitOutput');
 
-    if (!gitOutput) {
+    if (!gitOutput && !expectedHeadOid) {
       return; // This action is a no-op if there are no changes.
     }
     if (gitError) {
@@ -49,77 +63,49 @@ async function run(): Promise<void> {
     }
 
     const files = gitOutput.split('\n');
-    const newContents = [];
 
-    const g = octokit.rest.git;
+    const additions = [];
+    const deletions = [];
 
     for (const path of files) {
       if (!path.trim()) {
         continue;
       }
       if (fs.existsSync(path)) {
-        // const {
-        //   data: {sha},
-        // } = await g.createBlob({
-        //   owner,
-        //   repo,
-        //   content: fs.readFileSync(path, {encoding: 'base64'}),
-        //   encoding: 'base64',
-        // });
-
-        newContents.push({
+        additions.push({
           path,
-          mode: '100644' as const,
-          type: 'blob' as const,
-          // sha,
-          content: fs.readFileSync(path, {encoding: 'base64'}),
+          contents: fs.readFileSync(path, {encoding: 'base64'}),
         });
       } else {
         core.debug(`File removed: ${path}`);
-        newContents.push({
+        deletions.push({
           path,
-          mode: '100644' as const,
-          type: 'blob' as const,
-          sha: null,
         });
       }
     }
 
-    // Do a dance with the API.
-    // ========================
-    // Docs at docs.github.com/en/rest/git/trees but tbh I just asked ChatGPT
-    // and then made it as terse as I could. :shrug:
-
-    // const g = octokit.rest.git;
-    const ref = `heads/${branchName}`; // slight discrepancy w/ updateRef docs here
-
-    core.debug(`fetching ref ${JSON.stringify({owner, repo, ref})}`);
-    const {
-      data: {
-        object: {sha: commit_sha},
-      },
-    } = await g.getRef({owner, repo, ref});
-
-    core.debug(`fetching commit ${JSON.stringify({owner, repo, commit_sha})}`);
-    const {
-      data: {
-        tree: {sha: base_tree},
-      },
-    } = await g.getCommit({owner, repo, commit_sha});
-
-    const {
-      data: {sha: tree},
-    } = await g.createTree({owner, repo, base_tree, tree: newContents});
-    const {
-      data: {sha},
-    } = await g.createCommit({
-      owner,
-      repo,
-      message,
-      tree,
-      parents: [commit_sha],
-    });
-    await g.updateRef({owner, repo, ref, sha});
+    const result = await graphql(
+      `
+        mutation createCommitOnBranch() {
+          clientMutationId: 'id',
+          branch: {
+			      repositoryNameWithOwner: ${owner + '/' + repo},
+			      branchName: ${branchName},
+		      },
+          message: ${message},
+          fileChanges: {
+            additions: ${additions},
+            deletions: ${deletions},
+          },
+          expectedHeadOid: ${expectedHeadOid},
+        }
+      `,
+      {
+        headers: {
+          authorization: `token ${token}`,
+        },
+      }
+    );
   } catch (error: unknown) {
     if (error instanceof Error) {
       core.error(error.stack || '');
