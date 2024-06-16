@@ -144,7 +144,7 @@ function run() {
             core.debug(`expectedHeadOid: ${expectedHeadOid}`);
             core.debug('Creating commit...');
             const result = yield (0, graphql_1.graphql)(`
-        mutation createCommitOnBranch() {
+        mutation createCommitOnBranch(input: {
           clientMutationId: 'id',
           branch: {
 			      repositoryNameWithOwner: "${owner + '/' + repo}",
@@ -156,7 +156,11 @@ function run() {
             deletions: ${deletions},
           },
           expectedHeadOid: "${expectedHeadOid}",
-        }
+        }) {
+          commit {
+            url
+          }
+        } 
       `, {
                 headers: {
                     authorization: `token ${token}`,
