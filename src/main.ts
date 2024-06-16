@@ -122,7 +122,7 @@ async function run(): Promise<void> {
 
     const result = await graphql(
       `
-        mutation createCommitOnBranch($input: {
+        mutation ($input: {
           clientMutationId: 'id',
           branch: {
 			      repositoryNameWithOwner: "${owner + '/' + repo}",
@@ -135,8 +135,10 @@ async function run(): Promise<void> {
           },
           expectedHeadOid: "${expectedHeadOid}",
         }) {
-          commit {
-            url
+          createCommitOnBranch(input: $input) {
+            commit {
+              url
+            }
           }
         } 
       `,
