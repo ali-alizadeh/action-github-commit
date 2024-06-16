@@ -119,7 +119,7 @@ function run() {
             core.debug('getting expectedHeadOid...');
             const expectedHeadOid = yield (0, graphql_1.graphql)(`
         {
-          repository(name: ${repo}, owner: ${owner}) {
+          repository(name: "${repo}", owner: "${owner}") {
             ref(qualifiedName: ${branchName}) {
               target {
                 ... on Commit {
