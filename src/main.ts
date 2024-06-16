@@ -84,6 +84,8 @@ async function run(): Promise<void> {
       }
     }
 
+    core.debug('getting expectedHeadOid...');
+
     const expectedHeadOid = await graphql(
       `
         query repository(name: ${repo}, owner: ${owner}) {
@@ -103,6 +105,8 @@ async function run(): Promise<void> {
     );
 
     core.debug(`expectedHeadOid: ${expectedHeadOid}`);
+
+    core.debug('Creating commit...');
 
     const result = await graphql(
       `
@@ -129,6 +133,7 @@ async function run(): Promise<void> {
 
     core.debug(`result: ${result}`);
   } catch (error: unknown) {
+    core.error(`error: ${error}`);
     if (error instanceof Error) {
       core.error(error.stack || '');
       core.setFailed(error.message);

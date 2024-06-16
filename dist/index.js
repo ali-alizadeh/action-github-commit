@@ -116,6 +116,7 @@ function run() {
                     });
                 }
             }
+            core.debug('getting expectedHeadOid...');
             const expectedHeadOid = yield (0, graphql_1.graphql)(`
         query repository(name: ${repo}, owner: ${owner}) {
           defaultBranchRef {
@@ -132,6 +133,7 @@ function run() {
         }
       `);
             core.debug(`expectedHeadOid: ${expectedHeadOid}`);
+            core.debug('Creating commit...');
             const result = yield (0, graphql_1.graphql)(`
         mutation createCommitOnBranch() {
           clientMutationId: 'id',
@@ -154,6 +156,7 @@ function run() {
             core.debug(`result: ${result}`);
         }
         catch (error) {
+            core.error(`error: ${error}`);
             if (error instanceof Error) {
                 core.error(error.stack || '');
                 core.setFailed(error.message);
